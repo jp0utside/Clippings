@@ -1,0 +1,60 @@
+# XcodeGen project spec — run `xcodegen generate` to produce Clippings.xcodeproj.
+# Keeping the project definition in plain text makes it reviewable and avoids
+# .pbxproj merge conflicts. See README for setup.
+#
+# PLACEHOLDERS to replace with your real values (all centralized here):
+#   - bundle identifiers: com.example.clippings*  -> your reverse-DNS prefix
+#   - App Group string in the two .entitlements files must match these
+#   - DEVELOPMENT_TEAM: set once you have an Apple Team ID
+
+name: Clippings
+
+options:
+  bundleIdPrefix: com.example.clippings
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""            # <-- set your Apple Team ID
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1"     # iPhone only (PRD: iPhone-only)
+    SWIFT_STRICT_CONCURRENCY: complete
+
+packages:
+  ClippingsKit:
+    path: ClippingsKit
+
+targets:
+  Clippings:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.clippings
+        CODE_SIGN_ENTITLEMENTS: App/Clippings.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: App/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: Clippings
+    dependencies:
+      - package: ClippingsKit
+      - target: ShareExtension       # embedded into the app bundle
+
+  ShareExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - ShareExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.clippings.share
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/ShareExtension.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ShareExtension/Info.plist
+    dependencies:
+      - package: ClippingsKit

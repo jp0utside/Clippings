@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+
+# Generated project (XcodeGen produces this from project.yml)
+Clippings.xcodeproj/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Provisioning / signing (never commit)
+*.mobileprovision
+*.p12
+*.certSigningRequest
+
+# Misc
+*.log
