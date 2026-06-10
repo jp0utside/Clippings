@@ -73,15 +73,25 @@ This is a **sender-side** product. The user is the person doing the sharing; the
 3. The Clippings share extension opens as a full UI sheet (not just a menu row).
 4. User picks a **format**:
    - **Raw** — the screenshot as-is.
-   - **Split** — image preserved + caption extracted as selectable/sendable text.
-5. Optional lightweight **crop** and **quality/format export** controls.
+   - **Split** — image preserved + caption extracted as editable text. On export, the image and caption are handed to the Share sheet as **two separate items** (one image, one text object), so the recipient gets a clean image plus selectable text. *Note:* some destinations accept only one item and may drop the text; Messages and Mail handle both. A single composite image (caption rendered into the image) is a **v2 option** for single-item destinations.
+5. Lightweight **crop** and **output format** (JPEG or PNG) controls. **Committed v1 scope** — this is also the App Store minimum-functionality mitigation. A quality/compression slider is deferred to v2.
 6. User taps to **export via the system Share sheet** to one destination (Messages thread, email, etc.).
 
 ### Featured capability — the ML moment
 On-device **OCR (Apple Vision)** automatically detects and extracts the caption/text from the screenshot, powering the "Split" format. This is the headline technical feature and the thing that makes Split worth choosing over Raw.
 
-### Supporting feature — format/quality export
-Crop to content, and export at a chosen format/quality. This is the "overlooked use case" — a genuinely useful general-purpose tool that also satisfies App Store *minimum functionality* expectations (a one-button reshare alone risks a thin-app rejection).
+### Supporting feature — crop & format export
+Manual crop, plus export as JPEG or PNG. This is the "overlooked use case" — a genuinely useful general-purpose tool that also satisfies App Store *minimum functionality* expectations (a one-button reshare alone risks a thin-app rejection). Automatic crop-to-content detection and quality/compression controls are v2 refinements.
+
+### Container app (v1)
+The Home Screen app offers the **full flow** — pick an image via the limited photo picker, then the same Raw/Split + crop + export experience as the extension — plus onboarding ("how it works") and settings. This matters for App Review (reviewers open the container app first) and reinforces the minimum-functionality case.
+
+### Specified v1 behaviors
+- **Multiple images shared at once:** the extension processes the **first** image and shows a brief notice that one image is handled at a time.
+- **No caption detected:** Split is unavailable (with a short explanation); the user proceeds with Raw plus crop — a clean, bare image.
+- **Caption cleanup:** v1 exports the raw OCR text, ordered top-to-bottom; the user edits out anything unwanted before sending. Automatic stripping of UI chrome (usernames, like counts, buttons) is a v2 refinement.
+- **Metadata:** exported images are re-encoded without original metadata (location, device info never travels with the share).
+- **Output quality:** exports render at the **full resolution of the source image** (downsampling is used internally for preview/OCR only — see System Design §6).
 
 ---
 
@@ -119,7 +129,8 @@ Crop to content, and export at a chosen format/quality. This is the "overlooked 
 
 Because this is primarily a portfolio/learning project, success is defined accordingly:
 
-- **Must:** Ships to the App Store; the full loop works reliably; OCR is accurate on typical IG/TikTok screenshots; nothing is collected (clean privacy label).
+- **Must:** Ships to the App Store; the full loop works reliably; OCR meets the fixture bar below; nothing is collected (clean privacy label).
+- **OCR accuracy bar (measurable):** against a fixture set of **≥20 representative screenshots** (IG feed post, IG story, TikTok, X/Twitter; mix of short/long captions, light/dark mode, and at least 2 non-Latin-script samples), **≥90%** extract the complete caption text in correct reading order, and the remainder require only minor edits (no garbled or missing blocks). Zero OCR-related crashes across the set. The fixture suite runs as automated tests in ClippingsKit.
 - **Nice:** Real people (friends/family) actually use it; demoable in under 30 seconds in an interview; clean enough code/architecture to discuss in a system-design conversation.
 - **Stretch:** One v2 capability (library detection *or* a Shortcuts action) added post-launch to demonstrate iteration.
 
@@ -140,5 +151,9 @@ Because this is primarily a portfolio/learning project, success is defined accor
 ## 12. Open Questions
 
 - Final name + App Store display string (likely "Clippings — [tagline]").
-- Should crop/quality export ship in v1 or be the first v1.1 add? (Leaning **in**, for the functionality bar and because it's the most broadly useful piece.)
 - Which v2 capability becomes the headline iteration?
+
+### Resolved (June 2026)
+- **Crop/format export ships in v1.** Manual crop + JPEG/PNG output type. Quality slider and auto crop-to-content deferred to v2.
+- **Split exports as two separate share items** (image + text). Composite single-image rendering is a v2 option.
+- **Caption cleanup is manual in v1** (user edits raw OCR text); chrome-stripping heuristics are v2.
